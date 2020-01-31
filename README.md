@@ -1,17 +1,18 @@
-# K2 TypeScript Broker Template
+# K2 MS Graph - SharePoint Broker Sample
 
-This is demonstrates best-practices for developing a K2 Broker using TypeScript.
+This is demonstrates a simple broker made using the K2 TypeScript Broker
+Template that accesses the SharePoint list object in the MS Graph API.
 
 # Features
 
   - Full object model intellisense for making development easier
-  - Sample broker code that accesses jsonplaceholder.
+  - Sample broker code that accesses MS Graph.
   - Sample unit tests with mocks and code coverage.
   - RollupJS configuration for TypeScript.
 
 ## Getting Started
 
-This template requires [Node.js](https://nodejs.org/) v12.14.1+ to run.
+This sample requires [Node.js](https://nodejs.org/) v12.14.1+ to run.
 
 Install the dependencies and devDependencies:
 

@@ -13,7 +13,7 @@ test('describe returns the hardcoded instance', async t => {
         schema = result;
     });
 
-    await Promise.resolve<void>(ondescribe());
+    await Promise.resolve<void>(ondescribe({}));
     
     t.deepEqual(schema, {
         objects: {

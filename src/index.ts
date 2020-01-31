@@ -1,88 +1,79 @@
 import '@k2oss/k2-broker-core';
 
 metadata = {
-    systemName: "com.k2.example",
-    displayName: "Example Broker",
-    description: "An example broker that accesses JSONPlaceholder."
+	"systemName": "MSGraphSharePoint",
+	"displayName": "Microsoft Graph - SharePoint Broker",
+	"description": "Sample broker for SharePoint using MSGraph"
 };
 
-ondescribe = async function(): Promise<void> {
-    postSchema({
-        objects: {
-            "com.k2.todo": {
-                displayName: "TODO",
-                description: "Manages a TODO list",
-                properties: {
-                    "com.k2.todo.id": {
-                        displayName: "ID",
-                        type: "number"
+ondescribe = function() {
+    postSchema({ objects: {
+                "com.k2.sample.msgraph.sharepoint.list": {
+                    displayName: "List",
+                    description: "SharePoint List",
+                    properties: {
+                        "com.k2.sample.msgraph.sharepoint.list.id": {
+                            displayName: "ID",
+                            type: "string" 
+                        },
+                        "com.k2.sample.msgraph.sharepoint.list.name": {
+                            displayName: "Name",
+                            type: "string" 
+                        }
                     },
-                    "com.k2.todo.userId": {
-                        displayName: "User ID",
-                        type: "number"
-                    },
-                    "com.k2.todo.title": {
-                        displayName: "Title",
-                        type: "string"
-                    },
-                    "com.k2.todo.completed": {
-                        displayName: "Completed",
-                        type: "boolean"
-                    }
-                },
-                methods: {
-                    "com.k2.todo.get": {
-                        displayName: "Get TODO",
-                        type: "read",
-                        inputs: [ "com.k2.todo.id" ],
-                        outputs: [ "com.k2.todo.id", "com.k2.todo.userId", "com.k2.todo.title", "com.k2.todo.completed" ]
+                    methods: {
+                        "com.k2.sample.msgraph.sharepoint.list.get": {
+                            displayName: "Get List",
+                            type: "list",
+                            outputs: [ "com.k2.sample.msgraph.sharepoint.list.id", "com.k2.sample.msgraph.sharepoint.list.name" ]
+                        }
                     }
                 }
             }
         }
-    });
-}
+    )};
 
-onexecute = async function(objectName, methodName, _parameters, properties): Promise<void> {
+onexecute = function(objectName, methodName, parameters, properties) {
     switch (objectName)
     {
-        case "com.k2.todo": await onexecuteTodo(methodName, properties); break;
+        case "com.k2.sample.msgraph.sharepoint.list": onexecuteList(methodName, parameters, properties); break;
         default: throw new Error("The object " + objectName + " is not supported.");
     }
 }
 
-async function onexecuteTodo(methodName: string, properties: SingleRecord): Promise<void> {
+function onexecuteList(methodName: string, parameters: SingleRecord, properties: SingleRecord) {
     switch (methodName)
     {
-        case "com.k2.todo.get": await onexecuteTodoGet(properties); break;
+        case "com.k2.sample.msgraph.sharepoint.list.get": onexecuteListGet(parameters, properties); break;
         default: throw new Error("The method " + methodName + " is not supported.");
     }
 }
 
-function onexecuteTodoGet(properties: SingleRecord): Promise<void> {
-    return new Promise<void>((resolve, reject) =>
-    {
-        var xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = function() {
-            try {
-                if (xhr.readyState !== 4) return;
-                if (xhr.status !== 200) throw new Error("Failed with status " + xhr.status);
+function onexecuteListGet(parameters: SingleRecord, properties: SingleRecord) {
+    var xhr = new XMLHttpRequest();
 
-                var obj = JSON.parse(xhr.responseText);
-                postResult({
-                    "com.k2.todo.id": obj.id,
-                    "com.k2.todo.userId": obj.userId,
-                    "com.k2.todo.title": obj.title,
-                    "com.k2.todo.completed": obj.completed
-                });
-                resolve();
-            } catch (e) {
-                reject(e);
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState !== 4) return;
+        if (xhr.status !== 200) throw new Error("Failed with status " + xhr.status);
+
+        //console.log(xhr.responseText);
+        var obj = JSON.parse(xhr.responseText);
+        for (var key in obj) {
+            postResult({
+                "com.k2.sample.msgraph.sharepoint.list.id": obj[key].id,
+                "com.k2.sample.msgraph.sharepoint.list.name": obj[key].name});
+                // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
             }
-        };
+    };
 
-        xhr.open("GET", 'https://jsonplaceholder.typicode.com/todos/' + properties["com.k2.todo.id"]);
-        xhr.setRequestHeader('test', 'test value');
-        xhr.send();
-    });
+    var url = "https://graph.microsoft.com/v1.0/sites/root/lists";
+    //console.log(url);
+
+    xhr.open("GET", url);
+    // Authentication Header
+    // Use .withCredentials to use service instance configured OAuth (Bearer) or Static (Basic)
+    // Anything else, don't set .withCredentials and use .setRequestHeader to set the Authentication header
+    xhr.withCredentials = true;
+    //xhr.setRequestHeader("Accept", "application/json");
+    xhr.send();
 }

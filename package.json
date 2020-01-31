@@ -1,7 +1,7 @@
 {
-  "name": "example-broker",
+  "name": "sample-msgraphsharepoint",
   "version": "1.0.0",
-  "description": "Example K2 Broker",
+  "description": "Sample broker for MS Graph - SharePoint",
   "homepage": "https://www.k2.com",
   "license": "MIT",
   "private": true,
