@@ -8,24 +8,24 @@ metadata = {
 
 ondescribe = function() {
     postSchema({ objects: {
-                "com.k2.sample.msgraph.sharepoint.list": {
+                "list": {
                     displayName: "List",
                     description: "SharePoint List",
                     properties: {
-                        "com.k2.sample.msgraph.sharepoint.list.id": {
+                        "id": {
                             displayName: "ID",
                             type: "string" 
                         },
-                        "com.k2.sample.msgraph.sharepoint.list.name": {
+                        "name": {
                             displayName: "Name",
                             type: "string" 
                         }
                     },
                     methods: {
-                        "com.k2.sample.msgraph.sharepoint.list.get": {
+                        "get": {
                             displayName: "Get List",
                             type: "list",
-                            outputs: [ "com.k2.sample.msgraph.sharepoint.list.id", "com.k2.sample.msgraph.sharepoint.list.name" ]
+                            outputs: [ "id", "name" ]
                         }
                     }
                 }
@@ -36,7 +36,7 @@ ondescribe = function() {
 onexecute = function(objectName, methodName, parameters, properties) {
     switch (objectName)
     {
-        case "com.k2.sample.msgraph.sharepoint.list": onexecuteList(methodName, parameters, properties); break;
+        case "list": onexecuteList(methodName, parameters, properties); break;
         default: throw new Error("The object " + objectName + " is not supported.");
     }
 }
@@ -44,7 +44,7 @@ onexecute = function(objectName, methodName, parameters, properties) {
 function onexecuteList(methodName: string, parameters: SingleRecord, properties: SingleRecord) {
     switch (methodName)
     {
-        case "com.k2.sample.msgraph.sharepoint.list.get": onexecuteListGet(parameters, properties); break;
+        case "get": onexecuteListGet(parameters, properties); break;
         default: throw new Error("The method " + methodName + " is not supported.");
     }
 }
@@ -56,24 +56,21 @@ function onexecuteListGet(parameters: SingleRecord, properties: SingleRecord) {
         if (xhr.readyState !== 4) return;
         if (xhr.status !== 200) throw new Error("Failed with status " + xhr.status);
 
-        //console.log(xhr.responseText);
         var obj = JSON.parse(xhr.responseText);
-        for (var key in obj) {
-            postResult({
-                "com.k2.sample.msgraph.sharepoint.list.id": obj[key].id,
-                "com.k2.sample.msgraph.sharepoint.list.name": obj[key].name});
-                // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
+        postResult(obj.map(x => {
+            return {
+                "id": x.id,
+                "name": x.name
             }
+        }));
     };
 
     var url = "https://graph.microsoft.com/v1.0/sites/root/lists";
-    //console.log(url);
 
     xhr.open("GET", url);
     // Authentication Header
     // Use .withCredentials to use service instance configured OAuth (Bearer) or Static (Basic)
     // Anything else, don't set .withCredentials and use .setRequestHeader to set the Authentication header
     xhr.withCredentials = true;
-    //xhr.setRequestHeader("Accept", "application/json");
     xhr.send();
 }
