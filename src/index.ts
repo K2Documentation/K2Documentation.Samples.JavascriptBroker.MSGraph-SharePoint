@@ -35,7 +35,7 @@ ondescribe = async function (): Promise<void> {
     )
 };
 
-onexecute = async function (objectName, methodName, parameters, properties): Promise<void> {
+onexecute = async function ({objectName, methodName, parameters, properties}): Promise<void> {
     switch (objectName) {
         case "list": await onexecuteList(methodName, parameters, properties); break;
         default: throw new Error("The object " + objectName + " is not supported.");
